@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slack Prediction API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .response {
+            margin-top: 20px;
+        }
+        .log {
+            height: 200px;
+            overflow-y: auto;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            font-family: monospace;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+        .info {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Slack Prediction API Tester</h1>
+    
+    <div class="section">
+        <h2>Diagnostic Test</h2>
+        <p>Test the API connectivity and get diagnostic information.</p>
+        <button id="diagnosticBtn">Run Diagnostic</button>
+        <div class="response">
+            <h3>Response:</h3>
+            <pre id="diagnosticResponse">No response yet</pre>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Train Model</h2>
+        <p>Train the slack prediction model with the specified tables.</p>
+        <div class="form-group">
+            <label for="placeTable">Place Table:</label>
+            <input type="text" id="placeTable" value="ariane_place_sorted">
+        </div>
+        <div class="form-group">
+            <label for="ctsTable">CTS Table:</label>
+            <input type="text" id="ctsTable" value="ariane_cts_sorted">
+        </div>
+        <div class="form-group">
+            <label for="routeTable">Route Table:</label>
+            <input type="text" id="routeTable" value="ariane_route_sorted">
+        </div>
+        <button id="trainBtn">Train Model</button>
+        <div class="response">
+            <h3>Response:</h3>
+            <pre id="trainResponse">No response yet</pre>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Make Prediction</h2>
+        <p>Make predictions using the trained model.</p>
+        <div class="form-group">
+            <label for="predictTable">Table Name:</label>
+            <input type="text" id="predictTable" value="ariane_place_sorted">
+        </div>
+        <button id="predictBtn">Make Prediction</button>
+        <div class="response">
+            <h3>Response:</h3>
+            <pre id="predictResponse">No response yet</pre>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Request/Response Log</h2>
+        <div id="log" class="log"></div>
+    </div>
+    
+    <script>
+        // Function to log messages
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        // Function to make API requests
+        async function makeRequest(url, method, body = null) {
+            try {
+                log(`Sending ${method} request to ${url}`);
+                if (body) {
+                    log(`Request body: ${JSON.stringify(body)}`);
+                }
+                
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                
+                const startTime = Date.now();
+                const response = await fetch(url, options);
+                const endTime = Date.now();
+                
+                log(`Response received in ${endTime - startTime}ms with status: ${response.status}`);
+                
+                const data = await response.json();
+                log(`Response data: ${JSON.stringify(data)}`);
+                
+                return { success: true, data };
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Diagnostic button
+        document.getElementById('diagnosticBtn').addEventListener('click', async () => {
+            const result = await makeRequest('/slack-prediction/diagnostic', 'GET');
+            const responseElement = document.getElementById('diagnosticResponse');
+            
+            if (result.success) {
+                responseElement.textContent = JSON.stringify(result.data, null, 2);
+                log('Diagnostic test completed successfully', 'success');
+            } else {
+                responseElement.textContent = `Error: ${result.error}`;
+                log('Diagnostic test failed', 'error');
+            }
+        });
+        
+        // Train button
+        document.getElementById('trainBtn').addEventListener('click', async () => {
+            const placeTable = document.getElementById('placeTable').value;
+            const ctsTable = document.getElementById('ctsTable').value;
+            const routeTable = document.getElementById('routeTable').value;
+            
+            if (!placeTable || !ctsTable || !routeTable) {
+                log('Please provide all three table names', 'error');
+                return;
+            }
+            
+            const body = {
+                place_table: placeTable,
+                cts_table: ctsTable,
+                route_table: routeTable
+            };
+            
+            const result = await makeRequest('/slack-prediction/train', 'POST', body);
+            const responseElement = document.getElementById('trainResponse');
+            
+            if (result.success) {
+                responseElement.textContent = JSON.stringify(result.data, null, 2);
+                log('Training completed successfully', 'success');
+            } else {
+                responseElement.textContent = `Error: ${result.error}`;
+                log('Training failed', 'error');
+            }
+        });
+        
+        // Predict button
+        document.getElementById('predictBtn').addEventListener('click', async () => {
+            const table = document.getElementById('predictTable').value;
+            
+            if (!table) {
+                log('Please provide a table name', 'error');
+                return;
+            }
+            
+            const body = {
+                table_name: table
+            };
+            
+            const result = await makeRequest('/slack-prediction/predict', 'POST', body);
+            const responseElement = document.getElementById('predictResponse');
+            
+            if (result.success) {
+                responseElement.textContent = JSON.stringify(result.data, null, 2);
+                log('Prediction completed successfully', 'success');
+            } else {
+                responseElement.textContent = `Error: ${result.error}`;
+                log('Prediction failed', 'error');
+            }
+        });
+        
+        // Initial log message
+        log('API Tester initialized');
+    </script>
+</body>
+</html> 

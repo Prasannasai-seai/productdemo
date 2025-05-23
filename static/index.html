@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slack Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #ddd;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #f9f9f9;
+            border-bottom: 2px solid #4CAF50;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Slack Prediction Tool</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="openTab(event, 'train')">Train Model</div>
+            <div class="tab" onclick="openTab(event, 'predict')">Predict Slack</div>
+        </div>
+        
+        <div id="train" class="tab-content active">
+            <h2>Train Model</h2>
+            <form action="/slack-prediction/train" method="get">
+                <label for="place_table">Place Table:</label>
+                <input type="text" id="place_table" name="place_table" required>
+                
+                <label for="cts_table">CTS Table:</label>
+                <input type="text" id="cts_table" name="cts_table" required>
+                
+                <label for="route_table">Route Table:</label>
+                <input type="text" id="route_table" name="route_table" required>
+                
+                <button type="submit">Train Model</button>
+            </form>
+        </div>
+        
+        <div id="predict" class="tab-content">
+            <h2>Predict Slack</h2>
+            <div id="training-success" style="display: none; background-color: #dff0d8; color: #3c763d; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+                <strong>Success!</strong> Model has been trained successfully. You can now make predictions.
+            </div>
+            <form action="/slack-prediction/predict" method="get">
+                <label for="table">Table Name:</label>
+                <input type="text" id="table" name="table" required>
+                
+                <button type="submit">Predict</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we have query parameters indicating successful training
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('trained') && urlParams.get('trained') === 'true') {
+                // Show the success message
+                document.getElementById('training-success').style.display = 'block';
+                
+                // Switch to the predict tab
+                openTab({ currentTarget: document.querySelector('.tab:nth-child(2)') }, 'predict');
+                
+                // Add R2 score if available
+                if (urlParams.has('r2_score')) {
+                    const r2Score = parseFloat(urlParams.get('r2_score')).toFixed(4);
+                    document.getElementById('training-success').innerHTML += `<br>Model R² Score: ${r2Score}`;
+                }
+            }
+        });
+        
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            
+            tablinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+</html>

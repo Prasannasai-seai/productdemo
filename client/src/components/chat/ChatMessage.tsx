@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChatMessage as ChatMessageType } from '../../types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -28,11 +28,50 @@ interface ChatMessageProps {
   isAI?: boolean;
 }
 
+// Add a custom component for the download button instruction
+const DownloadButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        backgroundColor: 'var(--color-primary)',
+        color: 'white',
+        padding: '0.75rem 1.5rem',
+        borderRadius: '0.5rem',
+        border: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 600,
+        margin: '0.75rem 0',
+        width: '100%',
+        maxWidth: '400px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        transition: 'all 0.2s ease',
+      }}
+      className="download-button"
+      onMouseOver={(e) => {
+        e.currentTarget.style.transform = 'scale(1.02)';
+        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
+      }}
+    >
+      <ArrowDownTrayIcon style={{ width: '1.25rem', height: '1.25rem', marginRight: '0.5rem' }} />
+      Download All Results (CSV)
+    </button>
+  );
+};
+
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, isAI = false }) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [showSources, setShowSources] = useState<boolean>(false);
   const { currentTheme } = useTheme();
   const isDarkTheme = currentTheme !== 'light';
+  const [showDownloadButton, setShowDownloadButton] = useState(false);
 
   // Function to copy code to clipboard
   const copyToClipboard = (code: string) => {
@@ -136,7 +175,45 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isAI = false }) => {
           {children}
         </code>
       );
-    }
+    },
+    strong: ({node, children, ...props}) => {
+      const content = children.toString();
+      // Check if this is our custom download button
+      if (content && content.includes('[DOWNLOAD_ALL_RESULTS:')) {
+        // Extract the count from the format
+        const match = content.match(/\[DOWNLOAD_ALL_RESULTS:(\d+)\]/);
+        const count = match ? match[1] : '';
+        
+        return (
+          <button
+            style={{
+              backgroundColor: 'var(--color-primary)',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.25rem',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 500,
+              margin: '0.5rem 0'
+            }}
+            className="download-button"
+          >
+            <ArrowDownTrayIcon style={{ width: '1rem', height: '1rem', marginRight: '0.5rem' }} />
+            {`Download All ${count} Results as CSV`}
+          </button>
+        );
+      }
+      
+      // Regular strong/bold text
+      return (
+        <strong style={{fontWeight: 600}} {...props}>
+          {children}
+        </strong>
+      );
+    },
   };
 
   // Add or update these helper functions for the status display
@@ -172,6 +249,17 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isAI = false }) => {
         return status;
     }
   };
+
+  // Check if message contains download instruction
+  useEffect(() => {
+    if (isAI && message.content && 
+        (message.content.includes('To download all') || 
+         message.content.includes('download all'))) {
+      setShowDownloadButton(true);
+    } else {
+      setShowDownloadButton(false);
+    }
+  }, [isAI, message.content]);
 
   return (
     <div style={isAI ? messageBubbleStyles.ai.container : messageBubbleStyles.user.container}>
@@ -313,150 +401,182 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isAI = false }) => {
                 </div>
               </div>
             ) : (
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  ...components,
-                  // Add styling for other markdown elements
-                  p: ({node, children, ...props}) => (
-                    <p style={{marginTop: '0.75rem', marginBottom: '0.75rem'}} {...props}>
-                      {children}
-                    </p>
-                  ),
-                  h1: ({node, children, ...props}) => (
-                    <h1 style={{
-                      fontSize: '1.5rem',
-                      fontWeight: 600,
-                      marginTop: '1.5rem',
-                      marginBottom: '0.75rem',
-                      color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)'
-                    }} {...props}>
-                      {children}
-                    </h1>
-                  ),
-                  h2: ({node, children, ...props}) => (
-                    <h2 style={{
-                      fontSize: '1.3rem',
-                      fontWeight: 600,
-                      marginTop: '1.25rem',
-                      marginBottom: '0.75rem',
-                      color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)'
-                    }} {...props}>
-                      {children}
-                    </h2>
-                  ),
-                  h3: ({node, children, ...props}) => (
-                    <h3 style={{
-                      fontSize: '1.1rem',
-                      fontWeight: 600,
-                      marginTop: '1rem',
-                      marginBottom: '0.5rem',
-                      color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)'
-                    }} {...props}>
-                      {children}
-                    </h3>
-                  ),
-                  ul: ({node, children, ...props}) => (
-                    <ul style={{
-                      paddingLeft: '1.5rem',
-                      marginTop: '0.5rem',
-                      marginBottom: '0.5rem',
-                      listStyleType: 'disc'
-                    }} {...props}>
-                      {children}
-                    </ul>
-                  ),
-                  ol: ({node, children, ...props}) => (
-                    <ol style={{
-                      paddingLeft: '1.5rem',
-                      marginTop: '0.5rem',
-                      marginBottom: '0.5rem',
-                      listStyleType: 'decimal'
-                    }} {...props}>
-                      {children}
-                    </ol>
-                  ),
-                  li: ({node, children, ...props}) => (
-                    <li style={{
-                      marginTop: '0.25rem',
-                      marginBottom: '0.25rem'
-                    }} {...props}>
-                      {children}
-                    </li>
-                  ),
-                  a: ({node, children, ...props}) => (
-                    <a style={{
-                      color: 'var(--color-primary)',
-                      textDecoration: 'underline',
-                      fontWeight: 500
-                    }} {...props} target="_blank" rel="noopener noreferrer">
-                      {children}
-                    </a>
-                  ),
-                  blockquote: ({node, children, ...props}) => (
-                    <blockquote style={{
-                      borderLeft: `4px solid ${isDarkTheme ? 'var(--color-primary)' : 'var(--color-primary-light)'}`,
-                      paddingLeft: '1rem',
-                      margin: '1rem 0',
-                      color: 'var(--color-text-muted)',
-                      fontStyle: 'italic'
-                    }} {...props}>
-                      {children}
-                    </blockquote>
-                  ),
-                  table: ({node, children, ...props}) => (
-                    <div style={{ overflowX: 'auto', marginTop: '1rem', marginBottom: '1rem' }}>
-                      <table style={{
-                        borderCollapse: 'collapse',
-                        width: '100%',
-                        fontSize: '0.9rem',
+              <>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    ...components,
+                    // Add styling for other markdown elements
+                    p: ({node, children, ...props}) => (
+                      <p style={{marginTop: '0.75rem', marginBottom: '0.75rem'}} {...props}>
+                        {children}
+                      </p>
+                    ),
+                    h1: ({node, children, ...props}) => (
+                      <h1 style={{
+                        fontSize: '1.5rem',
+                        fontWeight: 600,
+                        marginTop: '1.5rem',
+                        marginBottom: '0.75rem',
+                        color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)'
                       }} {...props}>
                         {children}
-                      </table>
-                    </div>
-                  ),
-                  thead: ({node, children, ...props}) => (
-                    <thead style={{
-                      backgroundColor: isDarkTheme ? 'var(--color-surface-dark)' : 'var(--color-surface-light)',
-                      borderBottom: `2px solid ${isDarkTheme ? '#444' : '#e2e8f0'}`,
-                    }} {...props}>
-                      {children}
-                    </thead>
-                  ),
-                  tbody: ({node, children, ...props}) => (
-                    <tbody {...props}>
-                      {children}
-                    </tbody>
-                  ),
-                  tr: ({node, children, ...props}) => (
-                    <tr style={{
-                      borderBottom: `1px solid ${isDarkTheme ? '#333' : '#e2e8f0'}`,
-                    }} {...props}>
-                      {children}
-                    </tr>
-                  ),
-                  th: ({node, children, ...props}) => (
-                    <th style={{
-                      padding: '0.75rem',
-                      textAlign: 'left',
-                      fontWeight: 600,
-                      color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)',
-                    }} {...props}>
-                      {children}
-                    </th>
-                  ),
-                  td: ({node, children, ...props}) => (
-                    <td style={{
-                      padding: '0.75rem',
-                      borderRight: `1px solid ${isDarkTheme ? '#333' : '#e2e8f0'}`,
-                    }} {...props}>
-                      {children}
-                    </td>
-                  ),
-                }}
-              >
-                {message.content}
-              </ReactMarkdown>
+                      </h1>
+                    ),
+                    h2: ({node, children, ...props}) => (
+                      <h2 style={{
+                        fontSize: '1.3rem',
+                        fontWeight: 600,
+                        marginTop: '1.25rem',
+                        marginBottom: '0.75rem',
+                        color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)'
+                      }} {...props}>
+                        {children}
+                      </h2>
+                    ),
+                    h3: ({node, children, ...props}) => (
+                      <h3 style={{
+                        fontSize: '1.1rem',
+                        fontWeight: 600,
+                        marginTop: '1rem',
+                        marginBottom: '0.5rem',
+                        color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)'
+                      }} {...props}>
+                        {children}
+                      </h3>
+                    ),
+                    ul: ({node, children, ...props}) => (
+                      <ul style={{
+                        paddingLeft: '1.5rem',
+                        marginTop: '0.5rem',
+                        marginBottom: '0.5rem',
+                        listStyleType: 'disc'
+                      }} {...props}>
+                        {children}
+                      </ul>
+                    ),
+                    ol: ({node, children, ...props}) => (
+                      <ol style={{
+                        paddingLeft: '1.5rem',
+                        marginTop: '0.5rem',
+                        marginBottom: '0.5rem',
+                        listStyleType: 'decimal'
+                      }} {...props}>
+                        {children}
+                      </ol>
+                    ),
+                    li: ({node, children, ...props}) => (
+                      <li style={{
+                        marginTop: '0.25rem',
+                        marginBottom: '0.25rem'
+                      }} {...props}>
+                        {children}
+                      </li>
+                    ),
+                    a: ({node, children, href, ...props}) => {
+                      // Check if this is a download link
+                      const isDownloadLink = href && href.startsWith('download:');
+                      
+                      return (
+                        <a 
+                          style={{
+                            color: 'var(--color-primary)',
+                            textDecoration: 'underline',
+                            fontWeight: 500,
+                            cursor: isDownloadLink ? 'pointer' : 'auto',
+                            display: isDownloadLink ? 'inline-flex' : 'inline',
+                            alignItems: isDownloadLink ? 'center' : 'normal'
+                          }} 
+                          href={href}
+                          className={isDownloadLink ? 'download-link' : ''}
+                          {...props} 
+                          target={isDownloadLink ? '_self' : '_blank'} 
+                          rel="noopener noreferrer"
+                        >
+                          {isDownloadLink && (
+                            <ArrowDownTrayIcon style={{ width: '1rem', height: '1rem', marginRight: '0.25rem' }} />
+                          )}
+                          {children}
+                        </a>
+                      );
+                    },
+                    blockquote: ({node, children, ...props}) => (
+                      <blockquote style={{
+                        borderLeft: `4px solid ${isDarkTheme ? 'var(--color-primary)' : 'var(--color-primary-light)'}`,
+                        paddingLeft: '1rem',
+                        margin: '1rem 0',
+                        color: 'var(--color-text-muted)',
+                        fontStyle: 'italic'
+                      }} {...props}>
+                        {children}
+                      </blockquote>
+                    ),
+                    table: ({node, children, ...props}) => (
+                      <div style={{ overflowX: 'auto', marginTop: '1rem', marginBottom: '1rem' }}>
+                        <table style={{
+                          borderCollapse: 'collapse',
+                          width: '100%',
+                          fontSize: '0.9rem',
+                        }} {...props}>
+                          {children}
+                        </table>
+                      </div>
+                    ),
+                    thead: ({node, children, ...props}) => (
+                      <thead style={{
+                        backgroundColor: isDarkTheme ? 'var(--color-surface-dark)' : 'var(--color-surface-light)',
+                        borderBottom: `2px solid ${isDarkTheme ? '#444' : '#e2e8f0'}`,
+                      }} {...props}>
+                        {children}
+                      </thead>
+                    ),
+                    tbody: ({node, children, ...props}) => (
+                      <tbody {...props}>
+                        {children}
+                      </tbody>
+                    ),
+                    tr: ({node, children, ...props}) => (
+                      <tr style={{
+                        borderBottom: `1px solid ${isDarkTheme ? '#333' : '#e2e8f0'}`,
+                      }} {...props}>
+                        {children}
+                      </tr>
+                    ),
+                    th: ({node, children, ...props}) => (
+                      <th style={{
+                        padding: '0.75rem',
+                        textAlign: 'left',
+                        fontWeight: 600,
+                        color: isDarkTheme ? 'var(--color-primary-light)' : 'var(--color-primary)',
+                      }} {...props}>
+                        {children}
+                      </th>
+                    ),
+                    td: ({node, children, ...props}) => (
+                      <td style={{
+                        padding: '0.75rem',
+                        borderRight: `1px solid ${isDarkTheme ? '#333' : '#e2e8f0'}`,
+                      }} {...props}>
+                        {children}
+                      </td>
+                    ),
+                  }}
+                >
+                  {message.content}
+                </ReactMarkdown>
+                {/* Add download button if needed */}
+                {showDownloadButton && (
+                  <DownloadButton onClick={() => {
+                    // Custom download event
+                    const downloadEvent = new CustomEvent('predictor-download', {
+                      bubbles: true,
+                      cancelable: true
+                    });
+                    // Dispatch the event
+                    document.dispatchEvent(downloadEvent);
+                  }} />
+                )}
+              </>
             )}
           </div>
         ) : (

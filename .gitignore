@@ -15,3 +15,6 @@ client/.env
 /DATA/embeddings/
 /DATA/chroma_data/
 /DATA/vector_store/
+
+client/myenv/
+client\myenv

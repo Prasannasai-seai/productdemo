@@ -20,6 +20,18 @@ import ChatSidebar from '../components/chat/ChatSidebar';
 import MessageList from '../components/chat/MessageList';
 import ModelSelector from '../components/chat/ModelSelector';
 
+// Add this at the top of the file, after the imports
+declare global {
+  interface Window {
+    lastPredictionData?: {
+      data?: any[];
+      metrics?: any;
+      status?: string;
+      message?: string;
+    };
+  }
+}
+
 // Define a custom message type that includes all needed properties
 interface ExtendedChatMessageType {
   id: string;
@@ -44,6 +56,57 @@ interface ExtendedChatMessageType {
   sources?: RagSource[]; // Add sources for RAG responses
   useRag?: boolean; // Flag to indicate if RAG should be used for this message
 }
+
+// Add this utility function to convert data to CSV format
+const convertToCSV = (data: any[]) => {
+  if (!data || data.length === 0) return '';
+  
+  console.log(`[Predictor] Preparing CSV download of ${data.length} rows`);
+  
+  // Get headers
+  const headers = Object.keys(data[0]).join(',');
+  
+  // Process rows in batches to handle large datasets
+  const batchSize = 1000;
+  const totalRows = data.length;
+  const rows: string[] = [];
+  
+  // Process in batches to avoid memory issues with large datasets
+  for (let i = 0; i < totalRows; i += batchSize) {
+    console.log(`[Predictor] Processing batch ${i/batchSize + 1} of ${Math.ceil(totalRows/batchSize)}`);
+    const batch = data.slice(i, Math.min(i + batchSize, totalRows));
+    
+    const batchRows = batch.map(item => {
+      return Object.values(item).map(value => {
+        // Handle string values that might contain commas
+        if (typeof value === 'string' && value.includes(',')) {
+          return `"${value}"`;
+        }
+        return value;
+      }).join(',');
+    });
+    
+    rows.push(...batchRows);
+  }
+  
+  // Combine headers and rows
+  return [headers, ...rows].join('\n');
+};
+
+// Add this utility function to trigger a download
+const downloadCSV = (csvContent: string, filename: string) => {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 const Chatbot: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -94,10 +157,230 @@ const Chatbot: React.FC = () => {
   });
   // Track if we've already shown a RAG notification for the current document
   const [ragNotificationShown, setRagNotificationShown] = useState<boolean>(false);
+  
+  // Predictor state
+  const [isPredictorEnabled, setIsPredictorEnabled] = useState<boolean>(() => {
+    // Get from localStorage or default to false
+    const savedPreference = localStorage.getItem('predictorEnabled');
+    return savedPreference !== null ? savedPreference === 'true' : false;
+  });
 
   const titleInputRef = useRef<HTMLInputElement>(null);
   const streamedContentRef = useRef<{[key: string]: string}>({}); // Store streamed content by message ID
   const abortFunctionRef = useRef<(() => void) | null>(null); // Store the abort function
+
+  // Define handleDownloadClick function early to fix linter error
+  const handleDownloadClick = () => {
+    console.log('[Predictor] Download button clicked');
+    
+    // Check if we have prediction data stored
+    if (!window.lastPredictionData || !window.lastPredictionData.data || window.lastPredictionData.data.length === 0) {
+      console.log('[Predictor] No prediction data available for download');
+      const errorMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: 'No prediction results available for download. Please run a prediction first using the "predict" command.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      return;
+    }
+    
+    // Get the total number of results - make sure we get ALL rows
+    const totalResults = window.lastPredictionData.data.length;
+    console.log(`[Predictor] Preparing to download all ${totalResults} results`);
+    
+    try {
+      // Add status message first with more detailed information
+      const startMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: `⏳ Processing ${totalResults} rows for download... Please wait. This might take a moment for large datasets.`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, startMessage]);
+      
+      // Use a more efficient method to create the CSV for large datasets
+      setTimeout(() => {
+        try {
+          // Create CSV header including actual_route_slack if it exists
+          const firstRow = window.lastPredictionData.data[0] || {};
+          const headers = Object.keys(firstRow);
+          console.log(`[Predictor] CSV headers: ${headers.join(', ')}`);
+          
+          let csvContent = headers.join(',') + '\n';
+          
+          // Process in smaller batches to avoid UI freezing with large datasets
+          // Use smaller batch size for better UI responsiveness with very large datasets
+          const batchSize = 50;
+          const totalBatches = Math.ceil(totalResults / batchSize);
+          
+          // Use a recursive approach to process batches to avoid UI blocking
+          const processBatches = (currentBatchIndex = 0) => {
+            if (currentBatchIndex >= totalBatches) {
+              // All batches processed, create and trigger download
+              finalizeDownload(csvContent, totalResults);
+              return;
+            }
+            
+            // Update progress message every few batches
+            if (currentBatchIndex % 10 === 0 || currentBatchIndex === 0) {
+              const progressPercent = Math.round((currentBatchIndex / totalBatches) * 100);
+              setMessages(prev => prev.map(msg => 
+                msg.content.startsWith('⏳ Processing') 
+                  ? {...msg, content: `⏳ Processing ${totalResults} rows for download... ${progressPercent}% complete`}
+                  : msg
+              ));
+            }
+            
+            const start = currentBatchIndex * batchSize;
+            const end = Math.min(start + batchSize, totalResults);
+            console.log(`[Predictor] Processing batch ${currentBatchIndex + 1}/${totalBatches} (rows ${start}-${end})`);
+            
+            // Process this batch with better error handling
+            try {
+              for (let i = start; i < end; i++) {
+                if (i >= totalResults) break; // Safety check
+                
+                const row = window.lastPredictionData.data[i];
+                if (!row) {
+                  console.warn(`[Predictor] Missing data at index ${i}`);
+                  continue;
+                }
+                
+                const rowValues = headers.map(header => {
+                  const value = row[header];
+                  // Handle nulls and strings with commas
+                  if (value === null || value === undefined) return '';
+                  if (typeof value === 'string' && value.includes(',')) return `"${value}"`;
+                  return value;
+                });
+                csvContent += rowValues.join(',') + '\n';
+              }
+              
+              // Process next batch using setTimeout to avoid blocking the UI
+              setTimeout(() => processBatches(currentBatchIndex + 1), 0);
+            } catch (batchError) {
+              console.error(`[Predictor] Error processing batch ${currentBatchIndex}:`, batchError);
+              // Continue with next batch despite error
+              setTimeout(() => processBatches(currentBatchIndex + 1), 0);
+            }
+          };
+          
+          // Start batch processing
+          processBatches();
+          
+          // Helper function to finalize the download once all batches are processed
+          const finalizeDownload = (csvContent: string, totalRows: number) => {
+            // Create a direct download
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `prediction-results-${totalRows}-rows-${timestamp}.csv`;
+            
+            // Use blob for better handling of large files
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            
+            // Create a download link
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up
+            setTimeout(() => {
+              document.body.removeChild(link);
+              URL.revokeObjectURL(link.href);
+            }, 100);
+            
+            // Show confirmation message
+            const downloadMessage: ExtendedChatMessageType = {
+              id: `assistant-${Date.now()}`,
+              role: 'assistant',
+              content: `✅ Successfully downloaded all ${totalRows} prediction results as "${filename}"`,
+              timestamp: new Date()
+            };
+            setMessages(prev => prev.filter(msg => 
+              !msg.content.startsWith('⏳ Processing')
+            ).concat(downloadMessage));
+            
+            console.log(`[Predictor] Download completed for ${filename}`);
+          };
+        } catch (error) {
+          console.error('[Predictor] Error during download processing:', error);
+          const errorMessage: ExtendedChatMessageType = {
+            id: `assistant-${Date.now()}`,
+            role: 'assistant',
+            content: `❌ Error generating CSV: ${error.message}. Please try again.`,
+            timestamp: new Date()
+          };
+          setMessages(prev => prev.filter(msg =>
+            !msg.content.startsWith('⏳ Processing')
+          ).concat(errorMessage));
+        }
+      }, 100); // Small delay to allow UI to update with the status message first
+    } catch (error) {
+      console.error('[Predictor] Error during download:', error);
+      const errorMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: `❌ Error generating CSV: ${error.message}. Please try again.`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+
+  // Network request monitoring
+  useEffect(() => {
+    // Setup request monitoring
+    const monitorNetworkRequests = () => {
+      const originalFetch = window.fetch;
+      window.fetch = async function(input: RequestInfo | URL, init?: RequestInit) {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+        const method = init?.method || 'GET';
+        
+        console.log(`[Network] 🚀 ${method} request to ${url}`);
+        if (init?.body) {
+          try {
+            const body = typeof init.body === 'string' ? JSON.parse(init.body) : init.body;
+            console.log('[Network] Request payload:', body);
+          } catch (e) {
+            console.log('[Network] Request payload: [Could not parse]');
+          }
+        }
+        
+        const startTime = Date.now();
+        try {
+          const response = await originalFetch.apply(window, [input, init]);
+          const endTime = Date.now();
+          console.log(`[Network] ✅ Response from ${url} in ${endTime - startTime}ms, status: ${response.status}`);
+          
+          // Clone the response to be able to read the body
+          const clone = response.clone();
+          try {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              const data = await clone.json();
+              console.log('[Network] Response data:', data);
+            }
+          } catch (e) {
+            console.log('[Network] Could not parse response body');
+          }
+          
+          return response;
+        } catch (error) {
+          const endTime = Date.now();
+          console.error(`[Network] ❌ Error in ${url} after ${endTime - startTime}ms:`, error);
+          throw error;
+        }
+      };
+    };
+    
+    monitorNetworkRequests();
+    
+    // Cleanup function not needed as we want to keep the override
+  }, []);
 
   // Function to force check document status and update UI
   const forceCheckDocumentStatus = async () => {
@@ -524,9 +807,336 @@ const Chatbot: React.FC = () => {
     }
   };
 
+  const handlePredictorMode = async (message: string) => {
+    if (!isPredictorEnabled) return false;
+
+    console.log('[Predictor] Mode enabled, processing command:', message);
+    const lowerMessage = message.toLowerCase();
+
+    // Add user message to chat
+    const userMessage: ExtendedChatMessageType = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: message,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, userMessage]);
+
+    // Handle initial "train" command
+    if (lowerMessage === 'train') {
+      console.log('[Predictor] Received basic train command');
+      const trainMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: 'To train the model, I need at least two table names:\n\n' +
+                '1. Place table (required)\n' +
+                '2. CTS table (required)\n' +
+                '3. Route table (optional)\n\n' +
+                'Please provide them in this format:\n' +
+                'train <place_table> <cts_table> [route_table]\n\n' +
+                'Examples:\n' +
+                'train ariane_place_sorted ariane_cts_sorted\n' +
+                'train ariane_place_sorted ariane_cts_sorted ariane_route_sorted',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, trainMessage]);
+      return true;
+    }
+
+    // Handle training command with table names
+    if (lowerMessage.startsWith('train ')) {
+      console.log('[Predictor] Received train command with parameters');
+      const tables = message.split(' ').slice(1); // Get all words after "train"
+      if (tables.length < 2) {
+        console.log('[Predictor] Invalid number of table parameters:', tables.length);
+        const errorMessage: ExtendedChatMessageType = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: 'I need at least two table names for training.\n\n' +
+                  'Please use this format:\n' +
+                  'train <place_table> <cts_table> [route_table]\n\n' +
+                  'Examples:\n' +
+                  'train ariane_place_sorted ariane_cts_sorted\n' +
+                  'train ariane_place_sorted ariane_cts_sorted ariane_route_sorted',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return true;
+      }
+
+      // Clean table names by removing angle brackets
+      const placeTable = tables[0].replace(/[<>]/g, '').trim();
+      const ctsTable = tables[1].replace(/[<>]/g, '').trim();
+      const routeTable = tables.length > 2 ? tables[2].replace(/[<>]/g, '').trim() : null;
+      
+      console.log('[Predictor] Training with tables:', { placeTable, ctsTable, routeTable });
+
+      // Show training in progress message
+      const trainingMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: `I'm starting the training process with these tables:\n\n` +
+                `📊 Place table: ${placeTable}\n` +
+                `📊 CTS table: ${ctsTable}\n` +
+                (routeTable ? `📊 Route table: ${routeTable}\n\n` : '\n') +
+                `Please wait while I train the model...`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, trainingMessage]);
+
+      try {
+        console.log('[Predictor] Sending training request to API...');
+        const requestBody = {
+          place_table: placeTable,
+          cts_table: ctsTable,
+          route_table: routeTable
+        };
+        console.log('[Predictor] Request payload:', JSON.stringify(requestBody));
+        
+        const startTime = Date.now();
+        const response = await fetch('http://127.0.0.1:8088/slack-prediction/train', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        const endTime = Date.now();
+        console.log(`[Predictor] API response received in ${endTime - startTime}ms, status:`, response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[Predictor] HTTP error response:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('[Predictor] Training response data:', data);
+        
+        if (data.status === 'success') {
+          console.log('[Predictor] Training successful, displaying results');
+          const successMessage: ExtendedChatMessageType = {
+            id: `assistant-${Date.now()}`,
+            role: 'assistant',
+            content: `🎉 Training completed successfully!\n\n` +
+                    `Results:\n` +
+                    `📈 R² Score: ${data.r2_score?.toFixed(4) || 'N/A'}\n` +
+                    `📉 Mean Absolute Error: ${data.mae?.toFixed(4) || 'N/A'}\n` +
+                    `📊 Mean Squared Error: ${data.mse?.toFixed(4) || 'N/A'}\n\n` +
+                    `The model is now ready for predictions! Type "predict" to start making predictions.`,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, successMessage]);
+        } else {
+          console.warn('[Predictor] Training returned non-success status:', data.status);
+          throw new Error(data.message || 'Training failed');
+        }
+      } catch (error) {
+        console.error('[Predictor] Training error:', error);
+        const errorMessage: ExtendedChatMessageType = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: `❌ Training failed: ${error.message}\n\n` +
+                   `Please check that:\n` +
+                   `1. The table names are correct\n` +
+                   `2. The database is accessible\n\n` +
+                   `Try again with the correct table names.`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+      return true;
+    }
+
+    // Handle initial "predict" command
+    if (lowerMessage === 'predict') {
+      console.log('[Predictor] Received basic predict command');
+      const predictMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: 'To make predictions, I need a table name.\n\n' +
+                'Please provide it in this format:\n' +
+                'predict <table_name>\n\n' +
+                'Example: predict ariane_place_sorted',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, predictMessage]);
+      return true;
+    }
+
+    // Handle prediction command with table name
+    if (lowerMessage.startsWith('predict ')) {
+      console.log('[Predictor] Received predict command with parameters');
+      const table = message.split(' ')[1];
+      if (!table) {
+        console.log('[Predictor] No table name provided');
+        const errorMessage: ExtendedChatMessageType = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: 'I need a valid table name for prediction.\n\n' +
+                  'Please use this format:\n' +
+                  'predict <table_name>\n\n' +
+                  'Example: predict ariane_place_sorted',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return true;
+      }
+
+      console.log('[Predictor] Predicting with table:', table);
+      // Show prediction in progress message
+      const predictingMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: `🔄 Making predictions using table: ${table}\n` +
+                `Please wait while I process the data...`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, predictingMessage]);
+
+      try {
+        console.log('[Predictor] Sending prediction request to API...');
+        const requestBody = { table_name: table };
+        console.log('[Predictor] Request payload:', JSON.stringify(requestBody));
+        
+        const startTime = Date.now();
+        const response = await fetch('http://127.0.0.1:8088/slack-prediction/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+        const endTime = Date.now();
+        console.log(`[Predictor] API response received in ${endTime - startTime}ms, status:`, response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[Predictor] HTTP error response:', errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('[Predictor] Prediction response data:', data);
+        
+        // Store prediction data for potential download
+        window.lastPredictionData = data;
+        
+        // Show prediction results
+        // Format prediction data as a table if available
+        let resultsContent = `✨ Prediction completed successfully!\n\n`;
+        
+        if (data.data && data.data.length > 0) {
+          // Add direct download button at the top with clear instructions
+          resultsContent += `✨ Prediction completed successfully!\n\n` +
+                          `📊 **To download all ${data.data.length} results:**\n` +
+                          `Click the button below, or type "download" in the chat input.\n\n`;
+          
+          resultsContent += `Results (showing up to 10 predictions):\n\n`;
+          
+          // Check if actual_route_slack is available in the data
+          const hasActualSlack = data.data[0].hasOwnProperty('actual_route_slack');
+          
+          if (hasActualSlack) {
+            resultsContent += `| Beginpoint | Endpoint | Place Slack | CTS Slack | Predicted Route Slack | Actual Route Slack |\n`;
+            resultsContent += `|------------|----------|-------------|-----------|----------------------|-------------------|\n`;
+          } else {
+            resultsContent += `| Beginpoint | Endpoint | Place Slack | CTS Slack | Predicted Route Slack |\n`;
+            resultsContent += `|------------|----------|-------------|-----------|----------------------|\n`;
+          }
+          
+          // Display up to 10 rows for readability
+          const displayData = data.data.slice(0, 10);
+          for (const row of displayData) {
+            if (hasActualSlack) {
+              resultsContent += `| ${row.beginpoint || 'N/A'} | ${row.endpoint || 'N/A'} | ${row.training_place_slack?.toFixed(4) || 'N/A'} | ${row.training_cts_slack?.toFixed(4) || 'N/A'} | ${row.predicted_route_slack?.toFixed(4) || 'N/A'} | ${row.actual_route_slack?.toFixed(4) || 'N/A'} |\n`;
+            } else {
+              resultsContent += `| ${row.beginpoint || 'N/A'} | ${row.endpoint || 'N/A'} | ${row.training_place_slack?.toFixed(4) || 'N/A'} | ${row.training_cts_slack?.toFixed(4) || 'N/A'} | ${row.predicted_route_slack?.toFixed(4) || 'N/A'} |\n`;
+            }
+          }
+          
+          if (data.data.length > 10) {
+            resultsContent += `\n... and ${data.data.length - 10} more rows (total: ${data.data.length})\n`;
+          }
+        } else {
+          resultsContent += `Results: No prediction data available\n`;
+        }
+        
+        resultsContent += `\nMetrics:\n` +
+                   `📈 R² Score: ${data.metrics?.route_r2?.toFixed(4) || 'N/A'}\n` +
+                   `📉 Mean Absolute Error: ${data.metrics?.route_mae?.toFixed(4) || 'N/A'}\n` +
+                   `📊 Mean Squared Error: ${data.metrics?.route_mse?.toFixed(4) || 'N/A'}\n\n` +
+                   `You can make more predictions by using the predict command again.`;
+        
+        const resultsMessage: ExtendedChatMessageType = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: resultsContent,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, resultsMessage]);
+      } catch (error) {
+        console.error('[Predictor] Prediction error:', error);
+        const errorMessage: ExtendedChatMessageType = {
+          id: `assistant-${Date.now()}`,
+          role: 'assistant',
+          content: `❌ Prediction failed: ${error.message}\n\n` +
+                   `Please check that:\n` +
+                   `1. The model has been trained first\n` +
+                   `2. The table name is correct\n` +
+                   `3. The database is accessible\n\n` +
+                   `Try again with a valid table name, or type "train" to train the model first.`,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+      return true;
+    }
+
+    // Add a new handler for the download command
+    if (lowerMessage === 'download results' || lowerMessage === 'download') {
+      console.log('[Predictor] Received download command');
+      handleDownloadClick();
+      return true;
+    }
+
+    console.log('[Predictor] Command not recognized:', message);
+    return false;
+  };
+
   const handleSendMessage = async (content: string, file?: File) => {
     // Allow sending if there's text or a file
     if ((content.trim() === '' && !file) || isLoading || isUploading) return;
+
+    // Check if we're in predictor mode and handle accordingly
+    if (isPredictorEnabled) {
+      const handled = await handlePredictorMode(content);
+      if (handled) return; // If the message was handled by predictor mode, don't process it further
+      
+      // If we're in predictor mode but the message wasn't handled by the predictor commands,
+      // show a message explaining that only prediction commands are available in this mode
+      const userMessage: ExtendedChatMessageType = {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content: content.trim(),
+        timestamp: new Date()
+      };
+      
+      const restrictedMessage: ExtendedChatMessageType = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: "I'm currently in Predictor Mode and can only respond to prediction-related commands:\n\n" +
+                 "• \"train <place_table> <cts_table> <route_table>\" - Train the model\n" +
+                 "• \"predict <table_name>\" - Make predictions\n\n" +
+                 "To ask general questions, please disable Predictor Mode first.",
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage, restrictedMessage]);
+      return;
+    }
 
     const tempId = `temp-${Date.now()}`;
 
@@ -729,8 +1339,7 @@ const Chatbot: React.FC = () => {
                 // Check if we already have a success message
                 const hasSuccessMessage = filteredMessages.some(msg =>
                   msg.role === 'assistant' &&
-                  (msg.content.includes("Your document has been fully processed") ||
-                   msg.content.includes("Your document has been processed"))
+                  msg.content.includes("Your document has been fully processed")
                 );
 
                 if (!hasSuccessMessage) {
@@ -1007,7 +1616,7 @@ const Chatbot: React.FC = () => {
         // Add the message to the UI immediately to show streaming
         setMessages(prev => [...prev, aiMessage]);
         setIsStreaming(true);
-
+        
         // If RAG is available and enabled, use it
         if (shouldUseRag) {
           try {
@@ -1384,6 +1993,15 @@ const Chatbot: React.FC = () => {
       return newValue;
     });
   };
+  
+  // Toggle Predictor mode
+  const togglePredictorMode = () => {
+    setIsPredictorEnabled(prev => {
+      const newValue = !prev;
+      localStorage.setItem('predictorEnabled', String(newValue));
+      return newValue;
+    });
+  };
 
   const isEmpty = messages.length === 0;
 
@@ -1414,6 +2032,22 @@ const Chatbot: React.FC = () => {
       document.head.removeChild(styleElement);
     };
   }, []);
+
+  // Add an event listener for the custom download event
+  useEffect(() => {
+    const handleDownloadEvent = () => {
+      console.log('[Predictor] Download event received');
+      handleDownloadClick();
+    };
+    
+    // Add event listener
+    document.addEventListener('predictor-download', handleDownloadEvent);
+    
+    // Cleanup function
+    return () => {
+      document.removeEventListener('predictor-download', handleDownloadEvent);
+    };
+  }, []);  // Empty dependency array since handleDownloadClick is defined outside of this effect
 
   return (
     <div
@@ -1561,6 +2195,7 @@ const Chatbot: React.FC = () => {
             loadMoreMessages={loadMoreMessages}
             loadingMessages={loadingMessages}
             isEmpty={isEmpty}
+            onDownloadClick={handleDownloadClick}
           />
 
           <div
@@ -1585,6 +2220,8 @@ const Chatbot: React.FC = () => {
               isRagAvailable={isRagAvailable}
               isRagEnabled={isRagEnabled}
               onToggleRag={toggleRagMode}
+              isPredictorEnabled={isPredictorEnabled}
+              onTogglePredictor={togglePredictorMode}
             />
 
             {isEmpty && (

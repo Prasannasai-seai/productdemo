@@ -35,6 +35,7 @@
     "ollama": "^0.5.15",
     "pdf-parse": "^1.1.1",
     "pg": "^8.14.1",
+    "platform-dashboard": "file:",
     "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
     "react-syntax-highlighter": "^15.6.1",

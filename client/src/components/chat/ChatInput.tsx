@@ -25,6 +25,8 @@ interface ChatInputProps {
   isRagAvailable?: boolean;
   isRagEnabled?: boolean;
   onToggleRag?: () => void;
+  isPredictorEnabled?: boolean;
+  onTogglePredictor?: () => void;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -37,7 +39,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onStopGeneration,
   isRagAvailable = false,
   isRagEnabled = true,
-  onToggleRag
+  onToggleRag,
+  isPredictorEnabled = false,
+  onTogglePredictor
 }) => {
   const [input, setInput] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -111,6 +115,29 @@ const ChatInput: React.FC<ChatInputProps> = ({
         marginTop: isEmpty ? '20px' : '0'
       }}
     >
+      {/* Add predictor mode instructions */}
+      {isPredictorEnabled && (
+        <div
+          style={{
+            padding: '0.5rem 1rem',
+            marginBottom: '0.5rem',
+            backgroundColor: 'var(--color-primary-translucent)',
+            borderRadius: '0.5rem',
+            fontSize: '0.9rem',
+            color: 'var(--color-text)',
+          }}
+        >
+          <p style={{ margin: '0.25rem 0' }}>
+            <strong>Predictor Mode Active</strong>
+          </p>
+          <p style={{ margin: '0.25rem 0', fontSize: '0.8rem' }}>
+            Commands:
+            <br />• Type "train" to start training the model
+            <br />• Type "predict" to make predictions after training
+          </p>
+        </div>
+      )}
+
       {/* File preview area */}
       {selectedFile && (
         <div style={chatInputStyles.filePreviewContainer}>
@@ -251,6 +278,25 @@ const ChatInput: React.FC<ChatInputProps> = ({
           >
             <DocumentTextIcon className="h-4 w-4 mr-1" />
             RAG
+          </button>
+          
+          {/* Predictor toggle button */}
+          <button
+            type="button"
+            onClick={onTogglePredictor}
+            disabled={isLoading || isUploading || isStreaming}
+            style={{
+              ...chatInputStyles.ragToggleButton,
+              ...(isPredictorEnabled ? chatInputStyles.ragToggleEnabled : chatInputStyles.ragToggleDisabled),
+              opacity: (isLoading || isUploading || isStreaming) ? 0.5 : 1,
+              cursor: (isLoading || isUploading || isStreaming) ? 'not-allowed' : 'pointer',
+            }}
+            className="hover:bg-opacity-90 transition-all"
+            aria-label={isPredictorEnabled ? "Disable predictor mode" : "Enable predictor mode"}
+            title={isPredictorEnabled ? "Disable predictor mode" : "Enable predictor mode"}
+          >
+            <LightBulbIcon className="h-4 w-4 mr-1" />
+            Predictor
           </button>
         </div>
       </form>

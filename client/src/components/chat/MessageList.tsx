@@ -35,6 +35,7 @@ interface MessageListProps {
   loadMoreMessages: () => void;
   loadingMessages: boolean;
   isEmpty?: boolean;
+  onDownloadClick?: () => void;
 }
 
 const MessageList: React.FC<MessageListProps> = ({
@@ -43,7 +44,8 @@ const MessageList: React.FC<MessageListProps> = ({
   hasMoreMessages,
   loadMoreMessages,
   loadingMessages,
-  isEmpty = false
+  isEmpty = false,
+  onDownloadClick
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -84,6 +86,50 @@ const MessageList: React.FC<MessageListProps> = ({
     return groups;
   }, [messages]);
 
+  // Update the handleLinkClick function to detect the new download format
+  const handleLinkClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!onDownloadClick) return;
+    
+    // Check if the click was on a link or button
+    const target = e.target as HTMLElement;
+    
+    // Check for both anchor tags and bold text with our custom download format
+    const anchor = target.tagName === 'A' ? target : target.closest('a');
+    
+    // First check if it's a normal anchor tag with download: prefix
+    if (anchor) {
+      const href = anchor.getAttribute('href');
+      if (href && href.startsWith('download:')) {
+        e.preventDefault();
+        onDownloadClick();
+        return;
+      }
+    }
+    
+    // Also check for our special format in text content (for bold text click)
+    const textContent = target.textContent || '';
+    if (textContent.includes('[DOWNLOAD_ALL_RESULTS:') || 
+        target.innerHTML.includes('[DOWNLOAD_ALL_RESULTS:')) {
+      e.preventDefault();
+      onDownloadClick();
+      return;
+    }
+    
+    // Check if any parent has the download text (for when clicking on an icon within the text)
+    let current = target;
+    for (let i = 0; i < 5; i++) { // Check up to 5 levels up
+      if (!current.parentElement) break;
+      current = current.parentElement;
+      
+      const parentText = current.textContent || '';
+      if (parentText.includes('[DOWNLOAD_ALL_RESULTS:')) {
+        e.preventDefault();
+        onDownloadClick();
+        return;
+      }
+    }
+  };
+
   if (isEmpty) {
     return (
       <div style={messageListStyles.emptyState} className="chat-empty-state">
@@ -107,6 +153,7 @@ const MessageList: React.FC<MessageListProps> = ({
         scrollbarColor: 'var(--color-primary) var(--color-surface-dark)',
       }}
       className="scrollbar-thin scrollbar-thumb-primary scrollbar-track-surface-dark message-list-container"
+      onClick={handleLinkClick}
     >
       {/* Load more messages indicator */}
       {hasMoreMessages && (

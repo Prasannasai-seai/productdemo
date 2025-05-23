@@ -15653,3 +15653,281 @@ You can access the server at: [0;32mhttp://localhost:8080[0m
 2025-05-12 15:46:36 info: Loaded Ollama settings from database
 2025-05-12 16:13:43 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, ssh_configuration_id, mcp_port, mcp_discovered_tools_schema, is_default, created_at, updated_at, mcp_nickname, mcp_host, mcp_server_version, mcp_connection_status, mcp_last_error_message
 2025-05-12 16:13:45 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, ssh_configuration_id, mcp_port, mcp_discovered_tools_schema, is_default, created_at, updated_at, mcp_nickname, mcp_host, mcp_server_version, mcp_connection_status, mcp_last_error_message
+2025-05-20 11:18:07 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:18:07 info: Loaded Ollama settings from database
+2025-05-20 11:18:07 info: OllamaService initialized
+2025-05-20 11:18:39 info: Loaded Ollama settings from database
+2025-05-20 11:18:39 info: OllamaService initialized
+2025-05-20 11:18:39 info: RAG: OllamaService initialized successfully
+2025-05-20 11:34:38 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:35:59 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:39:39 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:41:49 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:41:49 info: No Ollama settings found, creating defaults
+2025-05-20 11:43:26 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:43:27 info: No Ollama settings found, creating defaults
+2025-05-20 11:45:02 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:45:03 info: No Ollama settings found, creating defaults
+2025-05-20 11:47:08 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 11:47:08 info: Loaded Ollama settings from database
+2025-05-20 11:47:08 info: OllamaService initialized
+2025-05-20 12:21:56 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 12:21:57 info: Loaded Ollama settings from database
+2025-05-20 12:21:57 info: OllamaService initialized
+2025-05-20 12:23:43 info: Loaded Ollama settings from database
+2025-05-20 12:23:43 info: OllamaService initialized
+2025-05-20 12:23:43 info: RAG: OllamaService initialized successfully
+2025-05-20 13:16:00 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 13:16:00 info: Loaded Ollama settings from database
+2025-05-20 13:16:00 info: OllamaService initialized
+2025-05-20 13:16:33 info: Loaded Ollama settings from database
+2025-05-20 13:16:33 info: OllamaService initialized
+2025-05-20 13:16:33 info: RAG: OllamaService initialized successfully
+2025-05-20 13:35:25 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, server_name, mcp_host, mcp_port, is_default, last_connection_status, last_error_message, created_at, updated_at
+2025-05-20 13:35:57 info: Loaded Ollama settings from database
+2025-05-20 13:40:38 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 13:40:39 info: Loaded Ollama settings from database
+2025-05-20 13:40:39 info: OllamaService initialized
+2025-05-20 13:41:36 info: Loaded Ollama settings from database
+2025-05-20 13:41:36 info: OllamaService initialized
+2025-05-20 13:41:36 info: RAG: OllamaService initialized successfully
+2025-05-20 14:32:16 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, server_name, mcp_host, mcp_port, is_default, last_connection_status, last_error_message, created_at, updated_at
+2025-05-20 14:32:18 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, server_name, mcp_host, mcp_port, is_default, last_connection_status, last_error_message, created_at, updated_at
+2025-05-20 14:32:24 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, server_name, mcp_host, mcp_port, is_default, last_connection_status, last_error_message, created_at, updated_at
+2025-05-20 15:10:43 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-20 15:10:43 info: Loaded Ollama settings from database
+2025-05-20 15:10:43 info: OllamaService initialized
+2025-05-20 15:11:04 info: Loaded Ollama settings from database
+2025-05-20 15:11:04 info: OllamaService initialized
+2025-05-20 15:11:04 info: RAG: OllamaService initialized successfully
+2025-05-20 15:11:33 info: Loaded Ollama settings from database
+2025-05-21 11:51:34 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 11:51:35 info: Loaded Ollama settings from database
+2025-05-21 11:51:35 info: OllamaService initialized
+2025-05-21 11:51:48 info: Loaded Ollama settings from database
+2025-05-21 11:51:48 info: OllamaService initialized
+2025-05-21 11:51:48 info: RAG: OllamaService initialized successfully
+2025-05-21 12:40:23 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 12:41:41 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 12:43:26 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 12:43:26 info: Loaded Ollama settings from database
+2025-05-21 12:43:26 info: OllamaService initialized
+2025-05-21 12:43:50 info: Loaded Ollama settings from database
+2025-05-21 12:43:50 info: OllamaService initialized
+2025-05-21 12:43:50 info: RAG: OllamaService initialized successfully
+2025-05-21 12:48:04 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 12:48:04 info: Loaded Ollama settings from database
+2025-05-21 12:48:04 info: OllamaService initialized
+2025-05-21 12:48:31 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 12:48:32 info: Loaded Ollama settings from database
+2025-05-21 12:48:32 info: OllamaService initialized
+2025-05-21 12:49:31 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 12:49:31 info: Loaded Ollama settings from database
+2025-05-21 12:49:31 info: OllamaService initialized
+2025-05-21 12:49:46 info: Loaded Ollama settings from database
+2025-05-21 12:49:46 info: OllamaService initialized
+2025-05-21 12:49:46 info: RAG: OllamaService initialized successfully
+2025-05-21 13:00:23 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:00:23 info: Loaded Ollama settings from database
+2025-05-21 13:00:23 info: OllamaService initialized
+2025-05-21 13:00:34 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:00:34 info: Loaded Ollama settings from database
+2025-05-21 13:00:34 info: OllamaService initialized
+2025-05-21 13:02:32 info: Loaded Ollama settings from database
+2025-05-21 13:02:32 info: OllamaService initialized
+2025-05-21 13:02:32 info: RAG: OllamaService initialized successfully
+2025-05-21 13:04:39 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:04:40 info: Loaded Ollama settings from database
+2025-05-21 13:04:40 info: OllamaService initialized
+2025-05-21 13:05:05 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:05:06 info: Loaded Ollama settings from database
+2025-05-21 13:05:06 info: OllamaService initialized
+2025-05-21 13:07:39 info: Loaded Ollama settings from database
+2025-05-21 13:07:39 info: OllamaService initialized
+2025-05-21 13:07:39 info: RAG: OllamaService initialized successfully
+2025-05-21 13:09:39 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:09:40 info: Loaded Ollama settings from database
+2025-05-21 13:09:40 info: OllamaService initialized
+2025-05-21 13:11:52 info: Loaded Ollama settings from database
+2025-05-21 13:11:52 info: OllamaService initialized
+2025-05-21 13:11:52 info: RAG: OllamaService initialized successfully
+2025-05-21 13:14:41 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:14:41 info: Loaded Ollama settings from database
+2025-05-21 13:14:41 info: OllamaService initialized
+2025-05-21 13:15:37 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:15:37 info: Loaded Ollama settings from database
+2025-05-21 13:15:37 info: OllamaService initialized
+2025-05-21 13:17:44 info: Loaded Ollama settings from database
+2025-05-21 13:17:44 info: OllamaService initialized
+2025-05-21 13:17:44 info: RAG: OllamaService initialized successfully
+2025-05-21 13:19:46 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:19:46 info: Loaded Ollama settings from database
+2025-05-21 13:19:46 info: OllamaService initialized
+2025-05-21 13:21:15 info: Loaded Ollama settings from database
+2025-05-21 13:21:15 info: OllamaService initialized
+2025-05-21 13:21:15 info: RAG: OllamaService initialized successfully
+2025-05-21 13:23:21 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:23:22 info: Loaded Ollama settings from database
+2025-05-21 13:23:22 info: OllamaService initialized
+2025-05-21 13:24:29 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:24:29 info: Loaded Ollama settings from database
+2025-05-21 13:24:29 info: OllamaService initialized
+2025-05-21 13:24:46 info: Loaded Ollama settings from database
+2025-05-21 13:24:46 info: OllamaService initialized
+2025-05-21 13:24:46 info: RAG: OllamaService initialized successfully
+2025-05-21 13:32:39 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:32:40 info: Loaded Ollama settings from database
+2025-05-21 13:32:40 info: OllamaService initialized
+2025-05-21 13:32:55 info: Loaded Ollama settings from database
+2025-05-21 13:32:55 info: OllamaService initialized
+2025-05-21 13:32:55 info: RAG: OllamaService initialized successfully
+2025-05-21 13:35:33 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:35:33 info: Loaded Ollama settings from database
+2025-05-21 13:35:33 info: OllamaService initialized
+2025-05-21 13:35:35 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:35:35 info: Loaded Ollama settings from database
+2025-05-21 13:35:35 info: OllamaService initialized
+2025-05-21 13:36:30 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:36:31 info: Loaded Ollama settings from database
+2025-05-21 13:36:31 info: OllamaService initialized
+2025-05-21 13:38:03 info: Loaded Ollama settings from database
+2025-05-21 13:38:03 info: OllamaService initialized
+2025-05-21 13:38:03 info: RAG: OllamaService initialized successfully
+2025-05-21 13:40:30 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 13:40:30 info: Loaded Ollama settings from database
+2025-05-21 13:40:30 info: OllamaService initialized
+2025-05-21 13:44:29 info: Loaded Ollama settings from database
+2025-05-21 13:44:29 info: OllamaService initialized
+2025-05-21 13:44:29 info: RAG: OllamaService initialized successfully
+2025-05-21 14:37:13 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 14:37:14 info: Loaded Ollama settings from database
+2025-05-21 14:37:14 info: OllamaService initialized
+2025-05-21 14:37:29 info: Loaded Ollama settings from database
+2025-05-21 14:37:29 info: OllamaService initialized
+2025-05-21 14:37:29 info: RAG: OllamaService initialized successfully
+2025-05-21 16:07:13 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 16:07:14 info: Loaded Ollama settings from database
+2025-05-21 16:07:14 info: OllamaService initialized
+2025-05-21 16:07:34 info: Loaded Ollama settings from database
+2025-05-21 16:07:34 info: OllamaService initialized
+2025-05-21 16:07:34 info: RAG: OllamaService initialized successfully
+2025-05-21 16:18:47 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 16:18:47 info: Loaded Ollama settings from database
+2025-05-21 16:18:47 info: OllamaService initialized
+2025-05-21 16:19:12 info: Loaded Ollama settings from database
+2025-05-21 16:19:12 info: OllamaService initialized
+2025-05-21 16:19:12 info: RAG: OllamaService initialized successfully
+2025-05-21 16:22:15 error: Error setting up stream: Request failed with status code 500
+2025-05-21 17:16:07 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 17:16:08 info: Loaded Ollama settings from database
+2025-05-21 17:16:08 info: OllamaService initialized
+2025-05-21 17:16:29 info: Loaded Ollama settings from database
+2025-05-21 17:16:29 info: OllamaService initialized
+2025-05-21 17:16:29 info: RAG: OllamaService initialized successfully
+2025-05-21 17:38:54 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-21 17:38:54 info: Loaded Ollama settings from database
+2025-05-21 17:38:54 info: OllamaService initialized
+2025-05-21 17:39:16 info: Loaded Ollama settings from database
+2025-05-21 17:39:16 info: OllamaService initialized
+2025-05-21 17:39:16 info: RAG: OllamaService initialized successfully
+2025-05-22 11:22:32 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 11:22:33 info: Loaded Ollama settings from database
+2025-05-22 11:22:33 info: OllamaService initialized
+2025-05-22 11:22:50 info: Loaded Ollama settings from database
+2025-05-22 11:22:50 info: OllamaService initialized
+2025-05-22 11:22:50 info: RAG: OllamaService initialized successfully
+2025-05-22 11:29:32 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 11:29:32 info: Loaded Ollama settings from database
+2025-05-22 11:29:32 info: OllamaService initialized
+2025-05-22 11:29:42 info: Loaded Ollama settings from database
+2025-05-22 11:29:42 info: OllamaService initialized
+2025-05-22 11:29:42 info: RAG: OllamaService initialized successfully
+2025-05-22 12:07:36 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 12:07:36 info: Loaded Ollama settings from database
+2025-05-22 12:07:36 info: OllamaService initialized
+2025-05-22 12:07:47 info: Loaded Ollama settings from database
+2025-05-22 12:07:47 info: OllamaService initialized
+2025-05-22 12:07:47 info: RAG: OllamaService initialized successfully
+2025-05-22 12:47:42 error: Error setting up stream: Request failed with status code 500
+2025-05-22 12:48:19 error: Error setting up stream: Request failed with status code 500
+2025-05-22 12:48:40 error: Error setting up stream: Request failed with status code 500
+2025-05-22 12:54:29 info: Deleting RAG data for session e18925b3-c0c0-4b31-8b4d-833f3d63dd39 requested by user e852ca6f-7c31-4e33-bf28-99008ed52c5c
+2025-05-22 12:54:29 info: RAG data deletion result for session e18925b3-c0c0-4b31-8b4d-833f3d63dd39: Success
+2025-05-22 12:54:29 info: Successfully deleted RAG data for session e18925b3-c0c0-4b31-8b4d-833f3d63dd39
+2025-05-22 12:54:32 info: Deleting RAG data for session f84c2d2f-65ac-4567-80ca-758b7aa34480 requested by user e852ca6f-7c31-4e33-bf28-99008ed52c5c
+2025-05-22 12:54:32 info: RAG data deletion result for session f84c2d2f-65ac-4567-80ca-758b7aa34480: Success
+2025-05-22 12:54:32 info: Successfully deleted RAG data for session f84c2d2f-65ac-4567-80ca-758b7aa34480
+2025-05-22 12:54:35 info: Deleting RAG data for session d60c9044-1664-495f-be8e-2bf170d98fc0 requested by user e852ca6f-7c31-4e33-bf28-99008ed52c5c
+2025-05-22 12:54:35 info: RAG data deletion result for session d60c9044-1664-495f-be8e-2bf170d98fc0: Success
+2025-05-22 12:54:35 info: Successfully deleted RAG data for session d60c9044-1664-495f-be8e-2bf170d98fc0
+2025-05-22 12:54:37 info: Deleting RAG data for session cfa49305-33c7-41b6-8a92-d9e1e97afb0c requested by user e852ca6f-7c31-4e33-bf28-99008ed52c5c
+2025-05-22 12:54:37 info: RAG data deletion result for session cfa49305-33c7-41b6-8a92-d9e1e97afb0c: Success
+2025-05-22 12:54:37 info: Successfully deleted RAG data for session cfa49305-33c7-41b6-8a92-d9e1e97afb0c
+2025-05-22 12:54:39 info: Deleting RAG data for session 7316aff0-5c75-4c4c-a29b-a73d1c121a0a requested by user e852ca6f-7c31-4e33-bf28-99008ed52c5c
+2025-05-22 12:54:39 info: RAG data deletion result for session 7316aff0-5c75-4c4c-a29b-a73d1c121a0a: Success
+2025-05-22 12:54:39 info: Successfully deleted RAG data for session 7316aff0-5c75-4c4c-a29b-a73d1c121a0a
+2025-05-22 13:03:20 info: Deleting RAG data for session 7ef09a3e-4c75-4676-9179-35f2951697b5 requested by user e852ca6f-7c31-4e33-bf28-99008ed52c5c
+2025-05-22 13:03:20 info: RAG data deletion result for session 7ef09a3e-4c75-4676-9179-35f2951697b5: Success
+2025-05-22 13:03:20 info: Successfully deleted RAG data for session 7ef09a3e-4c75-4676-9179-35f2951697b5
+2025-05-22 13:39:44 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:39:44 info: Loaded Ollama settings from database
+2025-05-22 13:39:44 info: OllamaService initialized
+2025-05-22 13:40:12 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:40:12 info: Loaded Ollama settings from database
+2025-05-22 13:40:12 info: OllamaService initialized
+2025-05-22 13:40:24 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:40:24 info: Loaded Ollama settings from database
+2025-05-22 13:40:24 info: OllamaService initialized
+2025-05-22 13:41:35 info: Loaded Ollama settings from database
+2025-05-22 13:41:35 info: OllamaService initialized
+2025-05-22 13:41:35 info: RAG: OllamaService initialized successfully
+2025-05-22 13:48:35 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:48:36 info: Loaded Ollama settings from database
+2025-05-22 13:48:36 info: OllamaService initialized
+2025-05-22 13:48:48 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:48:48 info: Loaded Ollama settings from database
+2025-05-22 13:48:48 info: OllamaService initialized
+2025-05-22 13:49:58 info: Loaded Ollama settings from database
+2025-05-22 13:49:58 info: OllamaService initialized
+2025-05-22 13:49:58 info: RAG: OllamaService initialized successfully
+2025-05-22 13:56:28 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:56:28 info: Loaded Ollama settings from database
+2025-05-22 13:56:28 info: OllamaService initialized
+2025-05-22 13:56:51 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:56:51 info: Loaded Ollama settings from database
+2025-05-22 13:56:51 info: OllamaService initialized
+2025-05-22 13:58:12 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 13:58:12 info: Loaded Ollama settings from database
+2025-05-22 13:58:12 info: OllamaService initialized
+2025-05-22 14:01:48 info: Loaded Ollama settings from database
+2025-05-22 14:01:48 info: OllamaService initialized
+2025-05-22 14:01:48 info: RAG: OllamaService initialized successfully
+2025-05-22 14:13:14 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 14:13:14 info: Loaded Ollama settings from database
+2025-05-22 14:13:14 info: OllamaService initialized
+2025-05-22 14:17:05 info: Loaded Ollama settings from database
+2025-05-22 14:17:05 info: OllamaService initialized
+2025-05-22 14:17:05 info: RAG: OllamaService initialized successfully
+2025-05-22 15:28:35 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 15:28:36 info: Loaded Ollama settings from database
+2025-05-22 15:28:36 info: OllamaService initialized
+2025-05-22 15:29:31 info: Loaded Ollama settings from database
+2025-05-22 15:29:31 info: OllamaService initialized
+2025-05-22 15:29:31 info: RAG: OllamaService initialized successfully
+2025-05-22 15:38:12 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-22 15:38:13 info: Loaded Ollama settings from database
+2025-05-22 15:38:13 info: OllamaService initialized
+2025-05-22 15:40:06 info: Loaded Ollama settings from database
+2025-05-22 15:40:06 info: OllamaService initialized
+2025-05-22 15:40:06 info: RAG: OllamaService initialized successfully
+2025-05-22 15:42:46 info: Deleting RAG data for session fa070bbc-99b7-4db8-b2d3-5f758a7d77b1 requested by user e852ca6f-7c31-4e33-bf28-99008ed52c5c
+2025-05-22 15:42:46 info: RAG data deletion result for session fa070bbc-99b7-4db8-b2d3-5f758a7d77b1: Success
+2025-05-22 15:42:46 info: Successfully deleted RAG data for session fa070bbc-99b7-4db8-b2d3-5f758a7d77b1
+2025-05-22 16:05:08 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, server_name, mcp_host, mcp_port, is_default, last_connection_status, last_error_message, created_at, updated_at
+2025-05-22 16:05:18 info: Available columns in user_mcp_server_configurations for getUserMCPServerConfigurations: id, user_id, server_name, mcp_host, mcp_port, is_default, last_connection_status, last_error_message, created_at, updated_at
+2025-05-23 10:45:01 info: Loading configuration from: C:\Users\seai_\Desktop\workspace\productdemo\conf\config.ini
+2025-05-23 10:45:02 info: Loaded Ollama settings from database
+2025-05-23 10:45:02 info: OllamaService initialized
+2025-05-23 10:45:33 info: Loaded Ollama settings from database
+2025-05-23 10:45:33 info: OllamaService initialized
+2025-05-23 10:45:33 info: RAG: OllamaService initialized successfully

@@ -49,3 +49,7 @@
 2025-05-09 17:53:34 error: SSH authentication failed: connect ECONNREFUSED 172.16.16.54:52
 2025-05-11 18:37:19 error: SSH authentication failed: connect ECONNREFUSED 172.16.16.54:52
 2025-05-11 18:37:27 error: SSH authentication failed: connect ECONNREFUSED 172.16.16.54:52
+2025-05-21 16:22:15 error: Error setting up stream: Request failed with status code 500
+2025-05-22 12:47:42 error: Error setting up stream: Request failed with status code 500
+2025-05-22 12:48:19 error: Error setting up stream: Request failed with status code 500
+2025-05-22 12:48:40 error: Error setting up stream: Request failed with status code 500

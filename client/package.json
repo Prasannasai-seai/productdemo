@@ -2,6 +2,7 @@
   "name": "client",
   "private": true,
   "version": "0.0.0",
+  "proxy": "http://localhost:8088",
   "scripts": {
     "dev": "react-scripts start",
     "build": "cross-env DISABLE_ESLINT_PLUGIN=true react-scripts build",
@@ -18,6 +19,7 @@
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
     "axios": "^1.8.4",
+    "client": "file:",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.7.4",
     "react": "^18.2.0",
